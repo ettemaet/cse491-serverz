@@ -33,8 +33,49 @@ def test_handle_connection():
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
                       '<h1>Hello, world.</h1>' + \
-                      'This is ctb\'s Web server.'
-
+                      'This is ettemaet\'s Web server.' + \
+                      '\n<a href="/content">Content</a>\n' + \
+                      '<a href="/file">Files</a>\n' + \
+                      '<a href="/image">Images</a>\n'
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_content():
+    conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h2>content</h2>'
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_file():
+    conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h2>files</h2>'
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_image():
+    conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h2>images</h2>'
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_post():
+    conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      '<h2>hello world</h2>'
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+

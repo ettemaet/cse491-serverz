@@ -1,6 +1,12 @@
 2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
 
- * Initialized repository, created server.py and README.
+ # Initialized repository, created server.py and README.
 
 2014-01-14  Ethan Ettema
- * Successfully completes HTTP requests and sends User-Agent info to terminal
+ # Successfully completes HTTP requests and sends User-Agent info to terminal
+2014-01-22  Ethan Ettema
+ # No long send User-Agent info to terminal.
+ # Home page display links to content, file, and image pages
+ # Links work correctly with different content
+ # Able to handle post/get requests seperately
+ # Added tests for each new path, and posts/gets

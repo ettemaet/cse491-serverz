@@ -13,9 +13,7 @@ def handle_connection(conn):
     reqType = info.split('\r\n')[0].split(' ')[1]
     urlInfo = urlparse.urlparse(reqType)
     reqType = urlInfo.path
-#    conn.send(reqType)
 
-  #  conn.send(info)
     if req == 'GET':
         if reqType == '/':
             handle_slash(conn, urlInfo)
@@ -33,7 +31,6 @@ def handle_connection(conn):
 #            handle_error()
     elif req == 'POST':
         handle_post(conn, info)
- #   conn.send(reqType)
     conn.close()
 
 def handle_slash(conn, urlInfo):
@@ -144,3 +141,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

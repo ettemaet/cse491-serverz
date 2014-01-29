@@ -72,9 +72,22 @@ def test_handle_connection_image():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_post():
-    conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("POST /post HTTP/1.0\r\n\r\nfirstname=Ethan&lastname=Ettema")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      '<h2>hello world</h2>'
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h3>hello world, submitted via post</h3>' + \
+                      'Hello Mr. Ethan Ettema.'
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_submit():
+    conn = FakeConnection("GET /submit?firstname=Ethan&lastname=Ettema HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      'Hello Mr. Ethan Ettema.'
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)

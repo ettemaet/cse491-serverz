@@ -10,3 +10,6 @@
  # Links work correctly with different content
  # Able to handle post/get requests seperately
  # Added tests for each new path, and posts/gets
+
+2014-01-29 Ethan Ettema
+ # There are now two forms, one submitted via POST, the other GET

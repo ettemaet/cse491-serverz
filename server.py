@@ -3,9 +3,21 @@ import random
 import socket
 import time
 import urlparse
+import cgi
+import jinja2
+from StringIO import StringIO
+from mimetools import Message
 
 def handle_connection(conn):
-    info = conn.recv(1000)
+    loader = jinja2.FileSystemLoader('./templates')
+    env = jinja2.Environment(loader=loader)
+
+    info = conn.recv(1)
+
+    # info is headers
+    while info[-4:] != '\r\n\r\n':
+        info += conn.recv(1)
+
     # req is either POST or GET
     req = info.split('\r\n')[0].split(' ')[0]
 
@@ -16,78 +28,68 @@ def handle_connection(conn):
 
     if req == 'GET':
         if reqType == '/':
-            handle_slash(conn, urlInfo)
+            handle_slash(conn, urlInfo, env)
         elif reqType == '/content':
-            handle_content(conn, urlInfo)
+            handle_content(conn, urlInfo, env)
         elif reqType == '/file':
-            handle_file(conn, urlInfo)
+            handle_file(conn, urlInfo, env)
         elif reqType == '/image':
-            handle_image(conn, urlInfo)
+            handle_image(conn, urlInfo, env)
         elif reqType == '/form':
-            handle_form(conn, urlInfo)
+            handle_form(conn, urlInfo, env)
         elif reqType == '/submit':
-            handle_submit(conn, urlInfo)
-#        else:
-#            handle_error()
+            handle_submit_get(conn, urlInfo, env)
+        else:
+            not_found(conn, urlInfo, env)
     elif req == 'POST':
-        handle_post(conn, info)
+        handle_post(conn, info, env)
     conn.close()
 
-def handle_slash(conn, urlInfo):
-    content = 'HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n' + \
-              '<h1>Hello, world.</h1>' + \
-              'This is ettemaet\'s Web server.'
-    conn.send(content)
-    links = '\n<a href="/content">Content</a>\n' + \
-            '<a href="/file">Files</a>\n' + \
-            '<a href="/image">Images</a>\n'
-    conn.send(links)
-
-def handle_content(conn, urlInfo):
+def handle_slash(conn, urlInfo, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
               '\r\n'
     conn.send(content)
-    info = '<h2>content</h2>'
-    conn.send(info)
 
-def handle_file(conn, urlInfo):
+    template = env.get_template('index_page.html').render()
+    conn.send(template)
+
+def handle_content(conn, urlInfo, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
               '\r\n'
     conn.send(content)
-    info = '<h2>files</h2>'
-    conn.send(info)
+    template = env.get_template('content_page.html').render()
+    conn.send(template)
 
-def handle_image(conn, urlInfo):
+def handle_file(conn, urlInfo, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
               '\r\n'
     conn.send(content)
-    info = '<h2>images</h2>'
-    conn.send(info)
 
-def handle_form(conn, urlInfo):
+    template = env.get_template('files_page.html').render()
+    conn.send(template)
+
+def handle_image(conn, urlInfo, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
               '\r\n'
     conn.send(content)
-    getForm = "<form action='/submit' method='GET'>" + \
-           "First Name:<input type='text' name='firstname'>" + \
-           "Last Name:<input type='text' name='lastname'>" + \
-           "<input type='submit' value='Submit Get'>" + \
-           "</form>"
-    conn.send(getForm)
-    postForm = "<form action='/post' method='POST'>" + \
-           "First Name:<input type='text' name='firstname'>" + \
-           "Last Name:<input type='text' name='lastname'>" + \
-           "<input type='submit' value='Submit Post'>" + \
-           "</form>"
-    conn.send(postForm)
 
-def handle_submit(conn, urlInfo):
+    template = env.get_template('image_page.html').render()
+    conn.send(template)
+
+def handle_form(conn, urlInfo, env):
+    content = 'HTTP/1.0 200 OK\r\n' + \
+              'Content-type: text/html\r\n' + \
+              '\r\n'
+    conn.send(content)
+
+    template = env.get_template('form_page.html').render()
+    conn.send(template)
+
+def handle_submit_get(conn, urlInfo, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
               '\r\n'
@@ -95,30 +97,93 @@ def handle_submit(conn, urlInfo):
     query = urlInfo.query
     data = urlparse.parse_qs(query)
 
-    conn.send('Hello Mr. ')
-    conn.send(data['firstname'][0])
-    conn.send(' ')
-    conn.send(data['lastname'][0])
-    conn.send('.')
+    try:
+        firstname = data['firstname'][0]
+    except KeyError:
+        firstname = ''
+    try:
+        lastname = data['lastname'][0]
+    except KeyError:
+        lastname = ''
 
+    vars = dict(firstname=firstname, lastname=lastname)
+    template = env.get_template('submit_get.html').render(vars)
+    conn.send(template)
 
-def handle_post(conn, info):
+def handle_post(conn, info, env):
     content = 'HTTP/1.0 200 OK\r\n' + \
               'Content-type: text/html\r\n' + \
              '\r\n'
     conn.send(content)
 
-    hello = '<h3>hello world, submitted via post</h3>'
-    conn.send(hello)
-    query = info.splitlines()[-1]
-    data = urlparse.parse_qs(query)
+    infoData = info.split()
 
-    conn.send('Hello Mr. ')
-    conn.send(data['firstname'][0])
-    conn.send(' ')
-    conn.send(data['lastname'][0])
-    conn.send('.')
+    contentLength = 0;
+    contentType = '';
+    lineSplit = info.split('\r\n')
+    for s in lineSplit:
+        if 'Content-Type' in s:
+            contentType = s.split()[1]
+        if 'Content-Length' in s:
+            contentLength = int (s.split()[1])
 
+    # read characters
+    for i in range(contentLength):
+        content += conn.recv(1)
+
+    if contentType == 'application/x-www-form-urlencoded':
+        query = content.splitlines()[-1]
+        data = urlparse.parse_qs(query)
+
+        try:
+            firstname = data['firstname'][0]
+        except KeyError:
+            firstname = ''
+        try:
+            lastname = data['lastname'][0]
+        except KeyError:
+            lastname = ''
+        vars = dict(firstname=firstname, lastname=lastname)
+        template = env.get_template('submit_post_application.html').render(vars)
+        conn.send(template)
+
+    elif contentType == 'multipart/form-data;':
+        # contains request info as well as header info
+        headers = info.split('\r\n', 1)[1]
+        headers = headers[:-4]
+        headers = headers.split('\r\n')
+        d = {}
+        for line in headers:
+            k, v = line.split(': ', 1)
+            d[k.lower()] = v
+        environ = {}
+        environ['REQUEST_METHOD'] = 'POST'
+        form = cgi.FieldStorage(
+            headers = d,
+            fp=StringIO(content),
+            environ=environ
+        )
+        firstname=''
+        try:
+            firstname = form['firstname'].value
+        except KeyError:
+            firstname = ''
+        try:
+            lastname = form['lastname'].value
+        except KeyError:
+            lastname = ''
+        vars = dict(firstname=firstname, lastname=lastname)
+        template = env.get_template('submit_post_application.html').render(vars)
+        conn.send(template)
+
+def not_found(conn, urlInfo, env):
+    content = 'HTTP/1.0 404 Not Found\r\n' + \
+              'Content-type: text/html\r\n' + \
+              '\r\n'
+    conn.send(content)
+
+    template = env.get_template("not_found.html").render()
+    conn.send(template)
 
 def main():
 

@@ -4,10 +4,14 @@ import requests
 
 url = sys.argv[1]
 
-payload = { 'key' : 'value' }
+payload = { 'firstname' : 'value', 'lastname' : 'value2' }
+files = { 'lastname' : 'bar' }
 r = requests.post(url, data=payload)
 
-print r.status_code
-print r.text
+#r2 = requests.post(url, data=payload, files=files)
 
+print r.status_code
+#print r.text
+
+#print r2.status_code
 

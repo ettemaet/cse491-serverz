@@ -28,7 +28,9 @@ class my_app:
 
         status = '200 OK '
 # CHANGED
-        headers = [('Content-type: ', 'text/html')]
+        headers = [('Content-type', 'text/html')]
+        if path == '/image':
+            headers = [('Content-type', 'image/jpeg')]
 
         if req == 'GET':
             if path == '/':
@@ -74,11 +76,27 @@ class my_app:
         vars = dict(title='File')
         content = self.env.get_template('files_page.html').render(vars).encode('latin-1', 'replace')
         self.output.append(content)
+        self.serve_file()
+
+    def serve_file(self):
+        filename = 'sample.txt'
+        fp = open(filename, "rb")
+        data = fp.read()
+        fp.close()
+        self.output.append(data)
 
     def handle_image(self):
         vars = dict(title='Image')
         content = self.env.get_template('image_page.html').render(vars).encode('latin-1', 'replace')
-        self.output.append(content)
+        #self.output.append(content)
+        self.serve_image()
+
+    def serve_image(self):
+        imageName = 'NCDAApril2013.jpg'
+        fp = open(imageName, "rb")
+        data = fp.read()
+        fp.close()
+        self.output.append(data)
 
     def handle_form(self):
         vars = dict(title='Form')

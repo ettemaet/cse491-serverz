@@ -7,6 +7,24 @@ import cgi
 import jinja2
 from StringIO import StringIO
 from app import make_app
+import quixote
+from wsgiref.validate import validator
+from wsgiref.simple_server import make_server
+#from quixote.demo import create_publisher
+#from quixote.demo.mini_demo import create_publisher
+#from quixote.demo.altdemo import create_publisher
+
+"""
+_the_app = None
+def make_app():
+    global _the_app
+
+    if _the_app is None:
+        p = create_publisher()
+        _the_app = quixote.get_wsgi_app()
+
+    return _the_app
+"""
 
 def handle_connection(conn):
     loader = jinja2.FileSystemLoader('./templates')
@@ -40,7 +58,7 @@ def handle_connection(conn):
                 contentLength = int (s.split()[1])
         for i in range(contentLength):
             content += conn.recv(1)
-        wsgi_input = StringIO(content)
+        wsgi_input = content
 
     """
     print 'REQUEST_METHOD is ', req
@@ -56,11 +74,20 @@ def handle_connection(conn):
     environ['PATH_INFO']      = reqType
     environ['QUERY_STRING']   = query
     environ['CONTENT_TYPE']   = contentType
-    environ['CONTENT_LENGTH'] = contentLength
-    environ['wsgi.input']     = wsgi_input
+    environ['CONTENT_LENGTH'] = str(contentLength)
+    environ['wsgi.input']     = StringIO(wsgi_input)
+    environ['SCRIPT_NAME']    = ''
+    environ['SERVER_NAME']    = 'test'
+    environ['SERVER_PORT']    = ''
+    environ['wsgi.errors']    = StringIO('blah')
+    environ['wsgi.multithread'] = ''
+    environ['wsgi.multiprocess'] = ''
+    environ['wsgi.run_once']  = ''
+    environ['wsgi.version']   = (2,0)
+    environ['wsgi.url_scheme'] = 'http'
 
     def start_response(status, response_headers):
-        conn.send('HTTP/1.0')
+        conn.send('HTTP/1.0 ')
         conn.send(status)
         conn.send('\r\n')
         for (k,v) in response_headers:
@@ -68,10 +95,15 @@ def handle_connection(conn):
             conn.send(v)
         conn.send('\r\n\r\n')
 
+
     wsgi_app = make_app()
+    validator_app = validator(wsgi_app)
+
     output   = wsgi_app(environ, start_response)
+#    output = validator_app(environ, start_response)
     for line in output:
         conn.send(line)
+    #conn.send(output)
     """
     ret = ["%s: %s\n" % (key, value)
            for key, value in environ.iteritems()]
@@ -80,7 +112,6 @@ def handle_connection(conn):
     conn.close()
 
 def main():
-
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn() # Get local machine name
     port = random.randint(8000, 9999)

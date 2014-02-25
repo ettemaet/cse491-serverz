@@ -5,6 +5,8 @@ import time
 import urlparse
 import cgi
 import jinja2
+import Cookie
+import os
 from StringIO import StringIO
 from app import make_app
 import quixote
@@ -13,7 +15,7 @@ from wsgiref.simple_server import make_server
 #from quixote.demo import create_publisher
 #from quixote.demo.mini_demo import create_publisher
 #from quixote.demo.altdemo import create_publisher
-
+import imageapp
 """
 _the_app = None
 def make_app():
@@ -45,6 +47,7 @@ def handle_connection(conn):
     reqType = urlInfo.path
     query = urlInfo.query
 
+    cookies       = ''
     content       = '';
     contentLength = 0;
     contentType   = '';
@@ -85,6 +88,11 @@ def handle_connection(conn):
     environ['wsgi.run_once']  = ''
     environ['wsgi.version']   = (2,0)
     environ['wsgi.url_scheme'] = 'http'
+    # Splits headers on line and returns line with cookies.
+    for line in lineSplit:
+        if 'Cookie: ' in line:
+            cookies = line.split(' ', 1)[1]
+    environ['HTTP_COOKIE']    = cookies
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
@@ -112,6 +120,10 @@ def handle_connection(conn):
     conn.close()
 
 def main():
+    imageapp.setup()
+    p = imageapp.create_publisher()
+    wsgi_app = quixote.get_wsgi_app()
+
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn() # Get local machine name
     port = random.randint(8000, 9999)
@@ -127,7 +139,10 @@ def main():
         # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(c)
+        try:
+            handle_connection(c)
+        finally:
+            imageapp.teardown()
 
 if __name__ == "__main__":
     main()

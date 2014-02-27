@@ -16,6 +16,7 @@ from wsgiref.simple_server import make_server
 #from quixote.demo.mini_demo import create_publisher
 #from quixote.demo.altdemo import create_publisher
 import imageapp
+
 """
 _the_app = None
 def make_app():
@@ -98,14 +99,24 @@ def handle_connection(conn, port):
         conn.send('HTTP/1.0 ')
         conn.send(status)
         conn.send('\r\n')
+        for k, v in response_headers:
+            conn.send("%s: %s\r\n" % (k, v))
+        conn.send('\r\n')
+    """
+    def start_response(status, response_headers):
+        conn.send('HTTP/1.0 ')
+        conn.send(status)
+        conn.send('\r\n')
         for (k,v) in response_headers:
             conn.send(k)
             conn.send(v)
         conn.send('\r\n\r\n')
+    """
+
 
     wsgi_app = quixote.get_wsgi_app()
 
-    #wsgi_app = make_app()
+    wsgi_app = make_app()
     validator_app = validator(wsgi_app)
 
     output   = wsgi_app(environ, start_response)

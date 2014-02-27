@@ -28,7 +28,7 @@ def make_app():
     return _the_app
 """
 
-def handle_connection(conn):
+def handle_connection(conn, port):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
 
@@ -80,8 +80,8 @@ def handle_connection(conn):
     environ['CONTENT_LENGTH'] = str(contentLength)
     environ['wsgi.input']     = StringIO(wsgi_input)
     environ['SCRIPT_NAME']    = ''
-    environ['SERVER_NAME']    = 'test'
-    environ['SERVER_PORT']    = ''
+    environ['SERVER_NAME']    = socket.getfqdn()
+    environ['SERVER_PORT']    = str(port)
     environ['wsgi.errors']    = StringIO('blah')
     environ['wsgi.multithread'] = ''
     environ['wsgi.multiprocess'] = ''
@@ -103,8 +103,9 @@ def handle_connection(conn):
             conn.send(v)
         conn.send('\r\n\r\n')
 
+    wsgi_app = quixote.get_wsgi_app()
 
-    wsgi_app = make_app()
+    #wsgi_app = make_app()
     validator_app = validator(wsgi_app)
 
     output   = wsgi_app(environ, start_response)
@@ -122,7 +123,6 @@ def handle_connection(conn):
 def main():
     imageapp.setup()
     p = imageapp.create_publisher()
-    wsgi_app = quixote.get_wsgi_app()
 
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn() # Get local machine name
@@ -140,7 +140,7 @@ def main():
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
         try:
-            handle_connection(c)
+            handle_connection(c, port)
         finally:
             imageapp.teardown()
 

@@ -5,6 +5,8 @@ import time
 import urlparse
 import cgi
 import jinja2
+import Cookie
+import os
 from StringIO import StringIO
 from app import make_app
 import quixote
@@ -13,6 +15,7 @@ from wsgiref.simple_server import make_server
 #from quixote.demo import create_publisher
 #from quixote.demo.mini_demo import create_publisher
 #from quixote.demo.altdemo import create_publisher
+import imageapp
 
 """
 _the_app = None
@@ -26,7 +29,7 @@ def make_app():
     return _the_app
 """
 
-def handle_connection(conn):
+def handle_connection(conn, port):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
 
@@ -45,6 +48,7 @@ def handle_connection(conn):
     reqType = urlInfo.path
     query = urlInfo.query
 
+    cookies       = ''
     content       = '';
     contentLength = 0;
     contentType   = '';
@@ -77,15 +81,28 @@ def handle_connection(conn):
     environ['CONTENT_LENGTH'] = str(contentLength)
     environ['wsgi.input']     = StringIO(wsgi_input)
     environ['SCRIPT_NAME']    = ''
-    environ['SERVER_NAME']    = 'test'
-    environ['SERVER_PORT']    = ''
+    environ['SERVER_NAME']    = socket.getfqdn()
+    environ['SERVER_PORT']    = str(port)
     environ['wsgi.errors']    = StringIO('blah')
     environ['wsgi.multithread'] = ''
     environ['wsgi.multiprocess'] = ''
     environ['wsgi.run_once']  = ''
     environ['wsgi.version']   = (2,0)
     environ['wsgi.url_scheme'] = 'http'
+    # Splits headers on line and returns line with cookies.
+    for line in lineSplit:
+        if 'Cookie: ' in line:
+            cookies = line.split(' ', 1)[1]
+    environ['HTTP_COOKIE']    = cookies
 
+    def start_response(status, response_headers):
+        conn.send('HTTP/1.0 ')
+        conn.send(status)
+        conn.send('\r\n')
+        for k, v in response_headers:
+            conn.send("%s: %s\r\n" % (k, v))
+        conn.send('\r\n')
+    """
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
         conn.send(status)
@@ -94,7 +111,10 @@ def handle_connection(conn):
             conn.send(k)
             conn.send(v)
         conn.send('\r\n\r\n')
+    """
 
+
+    wsgi_app = quixote.get_wsgi_app()
 
     wsgi_app = make_app()
     validator_app = validator(wsgi_app)
@@ -112,6 +132,9 @@ def handle_connection(conn):
     conn.close()
 
 def main():
+    imageapp.setup()
+    p = imageapp.create_publisher()
+
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn() # Get local machine name
     port = random.randint(8000, 9999)
@@ -127,7 +150,10 @@ def main():
         # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(c)
+        try:
+            handle_connection(c, port)
+        finally:
+            imageapp.teardown()
 
 if __name__ == "__main__":
     main()

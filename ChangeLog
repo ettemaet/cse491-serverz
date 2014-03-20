@@ -22,3 +22,13 @@
 2014-02-12 Ethan Ettema
  # Added wsgi app stuff for hw5
  # Added template inheritance
+
+
+2014-03-20 Ethan Ettema
+ # Added command line features to run specific app on a specific port (if specified)
+ #      -A <app> -p <port>, port is optional
+ # Added twill tests for each URL
+ # Added javascript/ajax to upload a file
+ # Once upload button has been clicked, alert will say the button has been clicked
+ #    then upon a successful upload, will tell you and redirect to home page
+ #    else, alert will say upload failed

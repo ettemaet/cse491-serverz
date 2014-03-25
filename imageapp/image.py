@@ -3,6 +3,7 @@
 images = {}
 
 def add_image(data):
+    print "in add image"
     if images:
         image_num = max(images.keys()) + 1
     else:
@@ -16,4 +17,5 @@ def get_image(num):
 
 def get_latest_image():
     image_num = max(images.keys())
+    print "\n\nIMAGE NUM:  ", image_num
     return images[image_num]

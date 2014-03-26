@@ -17,6 +17,8 @@ from wsgiref.simple_server import make_server
 #from quixote.demo.mini_demo import create_publisher
 from quixote.demo.altdemo import create_publisher
 import imageapp
+import quotes
+import chat
 
 
 def handle_connection(conn, port, app):
@@ -91,8 +93,13 @@ def handle_connection(conn, port, app):
         wsgi_app = quixote.get_wsgi_app()
     elif app == "myapp":
         wsgi_app = make_app()
+    elif app == "quotes":
+        wsgi_app = quotes.setup()
+    elif app == "chat":
+        wsgi_app = chat.setup()
     else:
-        wsgi_app = make_app()
+        print 'no such app'
+#        wsgi_app = make_app()
 
 #    validator_app = validator(wsgi_app)
 

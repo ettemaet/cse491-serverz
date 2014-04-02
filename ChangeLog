@@ -41,3 +41,21 @@
  #    images is now a list of that contains the data and the type of image
  #    this data and imagetype or passed as a parameter to add_image
  # *** note *** tiffs are not support in mozilla or chrome, but work in safari
+
+ 2014-04-02
+ # Added the url 'listimages' to display all currently uploaded images.
+ # Added a function in root.py to retrieve a specific image
+ # That function is called in 'listimages.html' as the list of images is iterated through
+ #     after being set in root.py 'listimages' function
+
+ # I set up a Virtual Machine using Digital Ocean.
+      Going to their site and creating a droplet is super easy and cheap.
+      After setting up the details, an email will be sent to you and you can ssh into your droplet.
+      Update and upgrade the server
+      Install python-dev, pip, nginx, git, and then virtualenv
+      Make a directory to store your apps
+      Create a virtual environment.  In it, install: uwsgi, quixote, and jinja2
+      Now you can pull imageapp from a git repository.
+      To run it you need a wsgi.py file to run.
+      Run the app by using "uwsgi --socket 0.0.0.0:8080 --protocol=http -w wsgi"
+         Now go to the IP address of your droplet and go to port 8080

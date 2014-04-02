@@ -13,8 +13,6 @@ from app import make_app
 import quixote
 from wsgiref.validate import validator
 from wsgiref.simple_server import make_server
-#from quixote.demo import create_publisher
-#from quixote.demo.mini_demo import create_publisher
 from quixote.demo.altdemo import create_publisher
 import imageapp
 import quotes

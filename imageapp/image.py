@@ -2,14 +2,14 @@
 
 images = {}
 
-def add_image(data):
+def add_image(data, filetype):
     print "in add image"
     if images:
         image_num = max(images.keys()) + 1
     else:
         image_num = 0
         
-    images[image_num] = data
+    images[image_num] = [data, filetype]
     return image_num
 
 def get_image(num):
@@ -17,5 +17,4 @@ def get_image(num):
 
 def get_latest_image():
     image_num = max(images.keys())
-    print "\n\nIMAGE NUM:  ", image_num
     return images[image_num]

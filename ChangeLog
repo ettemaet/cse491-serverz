@@ -59,3 +59,11 @@
       To run it you need a wsgi.py file to run.
       Run the app by using "uwsgi --socket 0.0.0.0:8080 --protocol=http -w wsgi"
          Now go to the IP address of your droplet and go to port 8080
+         
+
+ 2014-04-09 Ethan Ettema
+ # Added sqlite3 database
+ # Project #3 - I grabbed the "Cloudy Water Sports" template from owsg.org
+ #     Included this in my templates directory and included it in base.html
+ # Project #11 - Include jquery to check the size of a file before uploading
+ #     Max of 5 MB allowed

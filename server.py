@@ -17,6 +17,7 @@ from quixote.demo.altdemo import create_publisher
 import imageapp
 import quotes
 import chat
+import cookieapp
 
 
 def handle_connection(conn, port, app):
@@ -95,6 +96,8 @@ def handle_connection(conn, port, app):
         wsgi_app = quotes.setup()
     elif app == "chat":
         wsgi_app = chat.setup()
+    elif app == "cookie":
+        wsgi_app = cookieapp.wsgi_app
     else:
         print 'no such app'
 #        wsgi_app = make_app()

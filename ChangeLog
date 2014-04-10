@@ -63,6 +63,7 @@
 
  2014-04-09 Ethan Ettema
  # Added sqlite3 database
+ # Added cookieapp and twill tests
  # Project #3 - I grabbed the "Cloudy Water Sports" template from owsg.org
  #     Included this in my templates directory and included it in base.html
  # Project #11 - Include jquery to check the size of a file before uploading

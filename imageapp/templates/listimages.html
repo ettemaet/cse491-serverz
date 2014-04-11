@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+Here are your current images on the server:
+
+{% for image in images %}
+<p>
+<img width="150" height="150" src='get_image?special={{image}}'/>
+</p>
+{% endfor %}
+{% endblock %}

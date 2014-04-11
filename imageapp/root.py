@@ -14,6 +14,11 @@ class RootDirectory(Directory):
     def upload(self):
         return html.render('upload.html')
 
+    @export(name='listimages')
+    def listimages(self):
+        imagevars= {"images" : image.images}
+        return html.render('listimages.html', imagevars)
+
     @export(name='upload_receive')
     def upload_receive(self):
         request = quixote.get_request()
@@ -45,4 +50,12 @@ class RootDirectory(Directory):
         response = quixote.get_response()
         img = image.get_latest_image()
         response.set_content_type('image/%s' % img[1])
+        return img[0]
+
+    @export(name='get_image')
+    def get_image(self):
+        request = quixote.get_request()
+
+        the_int = int(request.form['special'])
+        img = image.get_image(the_int)
         return img[0]

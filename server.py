@@ -18,11 +18,13 @@ import imageapp
 import quotes
 import chat
 import cookieapp
+import threading
 
 
 def handle_connection(conn, port, app):
     loader = jinja2.FileSystemLoader('./templates')
     env = jinja2.Environment(loader=loader)
+    print 'New connection, you\'re so popular!'
 
     info = conn.recv(1)
 
@@ -136,19 +138,6 @@ def main():
         imageapp.setup()
         p = imageapp.create_publisher()
 
-    """
-    if args.app == "image":
-        app = args.app
-        imageapp.setup()
-        p = imageapp.create_publisher()
-        wsgi_app = quixote.get_wsgi_app()
-    elif args.app == "altdemo":
-        p = quixote.demo.altdemo.create_publisher()
-        wsgi_app = quixote.get_wsgi_app()
-    elif args.app == "myapp":
-        wsgi_app = make_app()
-    """
-
     s = socket.socket()         # Create a socket object
     host = socket.getfqdn() # Get local machine name
     s.bind((host, port))        # Bind to the port
@@ -160,11 +149,15 @@ def main():
 
     print 'Entering infinite loop; hit CTRL-C to exit'
     while True:
+        print 'Waiting for a connection.'
         # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
         try:
-            handle_connection(c, port, app)
+            t = threading.Thread(target=handle_connection,
+                args=(c, port, app))
+            t.start()
+            print t.getName()
         finally:
             imageapp.teardown()
 

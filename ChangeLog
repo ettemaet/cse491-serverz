@@ -68,3 +68,11 @@
  #     Included this in my templates directory and included it in base.html
  # Project #11 - Include jquery to check the size of a file before uploading
  #     Max of 5 MB allowed
+
+ 2014-04-16 Ethan Ettema
+- Project #16 - Added data persistence with sqlite.  The latest image from
+-      the database is always displayed, regardless if server is stopped.
+-      Viewing the list of all images grabs all images previously uploaded.
+- Project #17 - Added multithreading to the server.  As new connections are
+-      made, the name of each new thread is printed off to the terminal
+-      confirming that it is functioning correctly.

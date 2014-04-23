@@ -78,4 +78,9 @@
 -      confirming that it is functioning correctly.
 
  2014-04-23 Ethan Ettema
-- Project #
+- Project #23 - Images can now be gone to directly.  View most recent image
+-      goes to this URL.
+- Project #6  - When images are upload, user can now supply a name and
+-      description.  This info is displayed when viewing individual pics.
+
+

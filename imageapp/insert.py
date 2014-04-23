@@ -7,14 +7,14 @@ db = sqlite3.connect('images.sqlite')
 
 db.execute('DROP TABLE image_store')
 db.commit()
-db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, filetype TEXT)')
+db.execute('CREATE TABLE image_store (i INTEGER PRIMARY KEY, image BLOB, filetype TEXT, imgName TEXT, imgDesc TEXT)')
 db.commit()
 # configure to allow binary insertions
 db.text_factory = bytes
 
 # grab whatever it is you want to put in the database
-r = open('dice.png', 'rb').read()
-vars = (r, "png")
+#r = open('dice.png', 'rb').read()
+#vars = (r, "png")
 
 print '....inserting.....'
 # insert!

@@ -4,9 +4,9 @@
 <div id="menu">
 <ul>
 <li><a href='upload'>Upload an image</a> </li>
-<li><a href='image'>Show most recent image</a> </li>
+<li><a href='viewPic?i={{index}}'>Show most recent image</a> </li>
 <li><a href='listimages'>Show all images</a> </li>
 </ul>
 </div>
-<img width=40% src='image_raw?special=latest'/>
+<img class="image" width=40% src='image_raw?special=latest'/>
 {% endblock %}

@@ -76,3 +76,6 @@
 - Project #17 - Added multithreading to the server.  As new connections are
 -      made, the name of each new thread is printed off to the terminal
 -      confirming that it is functioning correctly.
+
+ 2014-04-23 Ethan Ettema
+- Project #

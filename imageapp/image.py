@@ -1,9 +1,7 @@
 # image handling API
 import sqlite3
 
-images = {}
-
-def add_image(data, filetype):
+def add_image(data, filetype, imgName, imgDesc):
     print "in add image"
 
     db = sqlite3.connect('images.sqlite')
@@ -21,15 +19,15 @@ def add_image(data, filetype):
     db.text_factory = bytes
 
     # insert!
-    vars = (index, data, filetype)
-    c.execute('INSERT INTO image_store (i, image, filetype) VALUES(?,?,?)', vars)
+    vars = (index, data, filetype, imgName, imgDesc)
+    c.execute('INSERT INTO image_store (i, image, filetype, imgName, imgDesc) VALUES(?,?,?,?,?)', vars)
     db.commit()
 
     db.close()
 
 #i    images[image_num] = [data, filetype]
     print "current number of images: "
-    print index
+    print index + 1
     return index
 
 def get_image(num):
@@ -60,7 +58,7 @@ def get_latest_image():
 
     # grab the first result (this will fail if no results!)
     i, image, filetype = c.fetchone()
-    result = [image, filetype]
+    result = [i, image, filetype]
 
     return result
 
@@ -71,17 +69,35 @@ def get_all_images():
     c = db.cursor()
     db.text_factory = bytes
 
-    c.execute('SELECT i FROM image_store ORDER BY i ASC')
+    c.execute('SELECT i, imgName, imgDesc FROM image_store ORDER BY i ASC')
 
     for row in c:
-        temp = str(row[0])
-        data["dict"][temp] = temp
-        #data["dict"] = {str(row[0]):str(row[0])}
-        print "image: ", row[0]
-    """
-    for row in c:
-        result = {'i' : row[0]}
-        img_results['results'].append(result)
-    """
+        index = str(row[0])
+        name  = row[1]
+        desc  = row[2]
+
+        data["dict"][index] = [index, name, desc]
+        print "image: ", row[0], name, desc
     db.close()
     return data
+
+def get_image_info(num):
+    db = sqlite3.connect('images.sqlite')
+    c  = db.cursor()
+    db.text_factory = bytes
+
+    c.execute('SELECT imgName, imgDesc FROM image_store WHERE i=?', (num, ))
+
+    imgName, imgDesc = c.fetchone()
+    result = [imgName, imgDesc]
+
+    return result
+
+def get_latest_img_index():
+    db = sqlite3.connect('images.sqlite')
+    c = db.cursor()
+
+    c.execute('SELECT i FROM image_store ORDER BY i DESC LIMIT 1')
+    row = c.fetchone()
+    return row[0]
+

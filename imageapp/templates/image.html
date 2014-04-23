@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="content">
 Here is your image:
-<p>
-<img width=40% src='image_raw?special=latest'/>
-
+</div>
+<img src=get_image?special={{index}} width=40% />
+<div>
+Name: {{pic[1]}}<p>
+Description {{pic[2]}}
+</div>
 {% endblock %}

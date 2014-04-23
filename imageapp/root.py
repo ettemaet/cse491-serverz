@@ -22,7 +22,6 @@ class RootDirectory(Directory):
     @export(name='upload_receive')
     def upload_receive(self):
         request = quixote.get_request()
-        print request.form.keys()
 
         the_file = request.form['file']
         filetype = the_file.orig_filename.split('.')[1]
@@ -47,6 +46,7 @@ class RootDirectory(Directory):
 
     @export(name='image_raw')
     def image_raw(self):
+        print "HERE"
         response = quixote.get_response()
         img = image.get_latest_image()
         response.set_content_type('image/%s' % img[1])

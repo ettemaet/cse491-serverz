@@ -4,7 +4,7 @@ from quixote.publish import Publisher
 
 # this imports the class RootDirectory from the file 'root.py'
 from .root import RootDirectory
-from . import html, image
+from . import html
 
 def create_publisher():
      p = Publisher(RootDirectory(), display_exceptions='plain')
@@ -12,10 +12,11 @@ def create_publisher():
      return p
  
 def setup():                            # stuff that should be run once.
+    print 'in setup'
     html.init_templates()
 
-    some_data = open('imageapp/segfault.jpg', 'rb').read()
-    image.add_image(some_data, 'jpg')
+#    some_data = open('imageapp/segfault.jpg', 'rb').read()
+#    image.add_image(some_data, 'jpg')
     
 
 def teardown():                         # stuff that should be run once.

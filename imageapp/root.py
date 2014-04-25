@@ -78,7 +78,8 @@ class RootDirectory(Directory):
     @export(name='viewPic')
     def viewPic(self):
         request = quixote.get_request()
-        the_int = image.get_latest_img_index()
+#        the_int = image.get_latest_img_index()
+        the_int = request.form['i']
         name, desc = image.get_image_info(the_int)
         info = [the_int, name, desc]
 
